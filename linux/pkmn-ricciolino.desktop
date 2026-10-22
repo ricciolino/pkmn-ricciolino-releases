@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Application
+Name=pkmn-ricciolino
+GenericName=Game Boy-style RPG
+Comment=A from-scratch Gen 1 Pokemon remake — Red + Blue fusion
+Exec=@BIN@
+Icon=@ICON_NAME@
+Terminal=false
+Categories=Game;RolePlaying;
+Keywords=pokemon;rpg;gameboy;retro;
+StartupWMClass=pkmn-ricciolino
+
+Actions=Uninstall;
+
+[Desktop Action Uninstall]
+Name=Uninstall
+Exec=@UNINSTALL@

@@ -21,7 +21,7 @@ completed in a single playthrough — plus a few liberties of my own.
 
 | Platform | How to get it |
 |---|---|
-| **Linux desktop** | [Releases](../../releases) — a single self-contained binary, no installer required |
+| **Linux desktop** | One command — see [below](#installing-on-linux). Or take the binary straight from [Releases](../../releases) |
 | **Android** | [Releases](../../releases) — APK, sideload it |
 | **iOS / iPadOS** | **On request.** Email **ricciolinotop@gmail.com** to be added to the TestFlight internal testing group. There are no plans to put it on the App Store |
 
@@ -35,6 +35,59 @@ completed in a single playthrough — plus a few liberties of my own.
 >
 > In the meantime, if you'd like to collaborate on something, write to
 > **ricciolinotop@gmail.com** — same address as above.
+
+---
+
+## Installing on Linux
+
+The game is one self-contained binary, so you *can* just download it and run it. The
+installer exists because a binary alone gives you no menu entry, no icon, and nothing to
+uninstall later.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ricciolino/pkmn-ricciolino-releases/main/install-linux.sh | bash
+```
+
+Piping a script into a shell is a habit worth questioning, so: the script is right there in
+this repository — [`install-linux.sh`](install-linux.sh). Download it, read it, then run it.
+
+**What it does.** It asks the GitHub API for the latest release, downloads the Linux build,
+**verifies its SHA-256 against the checksum published with the release**, and installs four
+things — no `sudo`, nothing outside your home directory:
+
+| | |
+|---|---|
+| `~/.local/bin/pkmn-ricciolino` | the game |
+| `~/.local/share/icons/hicolor/256x256/apps/` | the icon |
+| `~/.local/share/applications/` | the menu entry, with an *Uninstall* action |
+| `~/.local/bin/pkmn-ricciolino-uninstall` | the uninstaller |
+
+Run it again later and you get the newest release in place of the old one.
+
+**Uninstalling:**
+
+```bash
+~/.local/bin/pkmn-ricciolino-uninstall
+```
+
+It removes those four files and **leaves your saves alone**, in
+`~/.local/share/godot/app_userdata/pkmn-ricciolino/`.
+
+### What it needs, and what it doesn't
+
+- **x86_64 with glibc.** No ARM, and not musl systems such as Alpine. The script checks the
+  architecture and stops with a clear message rather than installing something that cannot run.
+- **`curl`.** Nothing else — no `jq`, no Python, no package manager.
+- **A desktop that reads XDG entries** for the menu icon: GNOME, KDE, XFCE, Cinnamon and the
+  rest. Bare window managers — i3, sway, dwm — don't read `.desktop` files themselves, but
+  launchers like `rofi -show drun` and `dmenu_run` do. Either way the game runs from the
+  terminal.
+- If `~/.local/bin` isn't on your `PATH`, the script says so and tells you the full path
+  instead of leaving you with a command that isn't found.
+
+The desktop entry and the icon are kept in [`linux/`](linux/) in this repository, versioned
+alongside the installer — so you can see exactly what will be put on your system before you
+run anything.
 
 ---
 
@@ -107,7 +160,7 @@ release is tagged, and the tag carries its own notes.
 
 Found a bug, a wrong name, a wall you can walk through? Open an
 [issue](../../issues) and say which version you are on — the game shows it in the top bar
-and in **Options → About**, in the form `0.1.2 (5)`.
+and in **Options → About**, in the form `1.0.0 (5)`.
 
 ---
 
