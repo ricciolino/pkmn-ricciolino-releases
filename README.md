@@ -25,8 +25,16 @@ completed in a single playthrough — plus a few liberties of my own.
 | **Android** | [Releases](../../releases) — APK, sideload it |
 | **iOS / iPadOS** | **On request.** Email **ricciolinotop@gmail.com** to be added to the TestFlight internal testing group. There are no plans to put it on the App Store |
 
-> This repository holds **only the builds**. The source lives in a separate, private
-> repository.
+> **This repository holds only the builds.** The source lives in a separate repository,
+> private for the moment — I still have things I want to try on it, some of them fairly
+> odd, and I'd rather get them in before opening the code to the world.
+>
+> It won't stay closed. The plan is to publish it eventually: partly for the fun of it,
+> partly because a project like this is a decent thing to learn from, or to build a
+> tutorial around.
+>
+> In the meantime, if you'd like to collaborate on something, write to
+> **ricciolinotop@gmail.com** — same address as above.
 
 ---
 
