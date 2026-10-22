@@ -91,20 +91,85 @@ curl -fsSL -o "$tmp/app.desktop" "$RAW/$APP.desktop" || die "could not fetch the
 # --- 4. the uninstaller, written before anything is installed -----------------
 # Built here rather than shipped, because it has to name the exact paths this
 # run used — which depend on XDG variables that are not ours to guess twice.
+#
+# It has to report what it did, and the hard part is that it is usually started
+# from a menu entry, where there is no terminal to print to. Three ways out, in
+# order: re-open in a terminal, show a dialog, raise a notification. ⚠ In all
+# three the removal HAPPENS — having no way to narrate it is not a reason to
+# skip it.
 cat > "$tmp/uninstall" <<EOF
 #!/usr/bin/env bash
 # Removes pkmn-ricciolino. Your saves are NOT touched.
 set -u
-removed=0
+
+SELF="$UNINSTALL"
+SAVES="$SAVES"
+
+# --- Way 1: started from the menu there is no tty, and this script writes and
+# waits for ENTER. Argument shapes are not standardised: "-e" covers almost
+# everything, gnome-terminal wants "--", wezterm wants "start --". The REEXEC
+# guard stops a loop if the terminal we found still gives no tty.
+if [ ! -t 0 ] && [ -z "\${PKMN_UNINSTALL_REEXEC:-}" ]; then
+    export PKMN_UNINSTALL_REEXEC=1
+    for T in "\${TERMINAL:-}" x-terminal-emulator alacritty kitty foot ghostty \\
+             wezterm gnome-terminal konsole xfce4-terminal tilix terminator \\
+             mate-terminal lxterminal urxvt xterm; do
+        [ -z "\$T" ] && continue
+        command -v "\$T" >/dev/null 2>&1 || continue
+        case "\$T" in
+            gnome-terminal) exec "\$T" -- "\$SELF" ;;
+            wezterm)        exec "\$T" start -- "\$SELF" ;;
+            *)              exec "\$T" -e "\$SELF" ;;
+        esac
+    done
+fi
+
+# --- Remove. Report only what was REALLY there: listing a file that was already
+# gone would make the summary a lie.
+# ⚠ The uninstaller is deliberately NOT counted here. It always exists while it
+# is running, so counting it would make "nothing to remove" unreachable — a
+# branch that can never run is a branch nobody tested.
+GONE=""
 for f in "$BIN" "$ICON" "$DESKTOP"; do
-    [ -e "\$f" ] && rm -f "\$f" && echo "removed \$f" && removed=1
+    [ -e "\$f" ] || continue
+    GONE="\$GONE
+  \$f"
 done
-command -v update-desktop-database >/dev/null && update-desktop-database "$APP_DIR" 2>/dev/null || true
-[ "\$removed" = 1 ] || echo "nothing to remove"
+rm -f "$BIN" "$ICON" "$DESKTOP"
+command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$APP_DIR" 2>/dev/null
+
+if [ -n "\$GONE" ]; then
+    WHAT="Removed:\$GONE
+  \$SELF  (this uninstaller)"
+else
+    WHAT="Nothing to remove — it was not installed."
+fi
+
+MSG="pkmn-ricciolino has been uninstalled.
+
+\$WHAT
+
+Your saves were NOT touched. They are still in:
+  \$SAVES"
+
+echo "=== Uninstalling pkmn-ricciolino ==="
 echo
-echo "Your saves are still here, untouched:"
-echo "  $SAVES"
-rm -f "$UNINSTALL"
+echo "\$MSG"
+echo
+
+# --- Ways 2 and 3: tell someone who has no terminal in front of them.
+if [ -t 0 ]; then
+    echo "Press [ENTER] to close."
+    read -r _
+elif command -v zenity >/dev/null 2>&1; then
+    zenity --info --width=560 --title="pkmn-ricciolino" --text="\$MSG"
+elif command -v kdialog >/dev/null 2>&1; then
+    kdialog --title "pkmn-ricciolino" --msgbox "\$MSG"
+elif command -v notify-send >/dev/null 2>&1; then
+    notify-send "pkmn-ricciolino" "Uninstalled. Your saves are still in \$SAVES"
+fi
+
+rm -f "\$SELF"
 EOF
 
 # --- 5. install ---------------------------------------------------------------

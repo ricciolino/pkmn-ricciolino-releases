@@ -1,12 +1,12 @@
 # pkmn-ricciolino
 
-<p align="center">
-  <img src="media/demo.gif" alt="pkmn-ricciolino — gameplay" width="480">
-</p>
-
 A from-scratch remake of the first-generation Game Boy Pokémon games, built in Godot.
 It is a **Red + Blue fusion**, rebuilt tile by tile so that the whole Pokédex can be
 completed in a single playthrough — plus a few liberties of my own.
+
+<p align="center">
+  <img src="media/demo.gif" alt="pkmn-ricciolino — gameplay" width="480">
+</p>
 
 <p align="center">
   <img src="media/title.png"        alt="Title screen"  width="24%">
