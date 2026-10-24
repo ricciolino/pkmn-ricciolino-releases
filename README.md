@@ -5,7 +5,8 @@ It is a **Red + Blue fusion**, rebuilt tile by tile so that the whole Pokédex c
 completed in a single playthrough — plus a few liberties of my own.
 
 <p align="center">
-  <img src="media/demo.gif" alt="pkmn-ricciolino — gameplay" width="480">
+  <img src="media/intro.gif"    alt="Boot sequence, title screen and the opening"  width="46%">
+  <img src="media/gameplay.gif" alt="Walking the overworld and a trainer battle"   width="46%">
 </p>
 
 <p align="center">
