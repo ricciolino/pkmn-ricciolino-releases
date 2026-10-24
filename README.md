@@ -160,7 +160,7 @@ release is tagged, and the tag carries its own notes.
 
 Found a bug, a wrong name, a wall you can walk through? Open an
 [issue](../../issues) and say which version you are on — the game shows it in the top bar
-and in **Options → About**, in the form `1.0.0 (5)`.
+and in **Options → About**.
 
 ---
 
