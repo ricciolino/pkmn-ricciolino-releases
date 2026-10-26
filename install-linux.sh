@@ -69,12 +69,25 @@ url="$(printf '%s' "$blk" | grep -m1 'browser_download_url' | sed 's/.*"\(https[
 # or tampered download from a good one instead of installing it blindly.
 want="$(printf '%s' "$blk" | grep -m1 '"digest"' | sed 's/.*sha256:\([a-f0-9]*\)".*/\1/' || true)"
 
+# ...and the size, which is why this script no longer carries a number of its own.
+# It used to say "about 105 MB", written by hand: a figure that drifts every time
+# the build changes and that nobody reopens the script to correct. The API knows
+# the real one for the release being installed, so we ask instead of guessing.
+bytes="$(printf '%s' "$blk" | grep -m1 '"size"' | tr -dc '0-9' || true)"
+if [ -n "$bytes" ]; then
+    # MiB, rounded — the unit `ls -lh` and every file manager shows, so the
+    # number matches what you will see on disk instead of being 5% bigger.
+    size_note=" (about $(( (bytes + 524288) / 1048576 )) MB)"
+else
+    size_note=""
+fi
+
 say "Found $tag"
 
 # --- 3. download into a scratch dir, verify, then move ------------------------
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-say "Downloading… (about 105 MB)"
+say "Downloading…$size_note"
 curl -fL# -o "$tmp/$APP" "$url" || die "download failed"
 
 if [ -n "$want" ] && command -v sha256sum >/dev/null; then
