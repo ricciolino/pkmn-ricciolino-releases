@@ -22,7 +22,7 @@ completed in a single playthrough — plus a few liberties of my own.
 
 | Platform | How to get it |
 |---|---|
-| **Linux desktop** | One command — see [below](#installing-on-linux). Or take the binary straight from [Releases](../../releases) |
+| **Linux desktop** | One command — see [below](#installing-on-linux). It picks the right binary for your machine: **x86_64** or **arm64**. Or take either straight from [Releases](../../releases) |
 | **Android** | [Releases](../../releases) — APK, sideload it |
 | **iOS / iPadOS** | **On request.** Email **ricciolinotop@gmail.com** to be added to the TestFlight internal testing group. There are no plans to put it on the App Store |
 
@@ -76,8 +76,13 @@ It removes those four files and **leaves your saves alone**, in
 
 ### What it needs, and what it doesn't
 
-- **x86_64 with glibc.** No ARM, and not musl systems such as Alpine. The script checks the
-  architecture and stops with a clear message rather than installing something that cannot run.
+- **x86_64 or arm64, with glibc.** The script reads `uname -m` and fetches the matching
+  binary; on anything else — 32-bit ARM, RISC-V — it stops with a clear message instead of
+  installing something that cannot run. Not musl systems such as Alpine.
+- **A GPU that does OpenGL 3.3 or OpenGL ES 3.0.** Godot 4 needs it even in the
+  compatibility renderer, so a few older ARM boards — anything on a Mali-400 or Mali-450 —
+  can only fall back to software rendering, which works but is slow. Desktop graphics from
+  the last decade and the Raspberry Pi 4 and up are fine.
 - **`curl`.** Nothing else — no `jq`, no Python, no package manager.
 - **A desktop that reads XDG entries** for the menu icon: GNOME, KDE, XFCE, Cinnamon and the
   rest. Bare window managers — i3, sway, dwm — don't read `.desktop` files themselves, but

@@ -13,7 +13,7 @@
 # Uninstall at any time with:  ~/.local/bin/pkmn-ricciolino-uninstall
 #
 # What it will NOT work on, stated up front rather than failing cryptically:
-#   - anything that is not x86_64
+#   - architectures other than x86_64 and arm64 (32-bit ARM, RISC-V, …)
 #   - distributions without glibc (Alpine and other musl systems)
 # The game itself is a single self-contained binary and needs no runtime.
 
@@ -43,8 +43,16 @@ warn() { printf '\033[33m  ! %s\033[0m\n' "$*"; }
 die()  { printf '\033[31mERROR: %s\033[0m\n' "$*" >&2; exit 1; }
 
 # --- 1. can we even run here? -------------------------------------------------
+# The release carries one binary per architecture and `uname -m` picks which:
+# the name it prints is the same string the asset is named after. ⚠ aarch64 and
+# arm64 are ONE machine under two names — Linux reports the first, some
+# userspaces the second — so both have to map to the same asset.
 arch="$(uname -m)"
-[ "$arch" = "x86_64" ] || die "this build is x86_64 only, found: $arch"
+case "$arch" in
+    x86_64)        asset="linux-x86_64" ;;
+    aarch64|arm64) asset="linux-arm64"  ;;
+    *) die "no build for this architecture: $arch (x86_64 and arm64 only)" ;;
+esac
 command -v curl >/dev/null || die "curl is required"
 
 # --- 2. ask the release API what the latest build is --------------------------
@@ -61,9 +69,9 @@ tag="$(printf '%s' "$api" | grep -m1 '"tag_name"' | sed 's/.*"tag_name": *"\([^"
 # after the name, with the uploader object in between, so "grep -A20" silently
 # returns nothing and the checksum check quietly turns itself off.
 blk="$(printf '%s' "$api" | tr ',' '\n' \
-       | sed -n '/"name": *"[^"]*linux-x86_64"/,/browser_download_url/p')"
+       | sed -n "/\"name\": *\"[^\"]*$asset\"/,/browser_download_url/p")"
 url="$(printf '%s' "$blk" | grep -m1 'browser_download_url' | sed 's/.*"\(https[^"]*\)".*/\1/')"
-[ -n "$url" ] || die "no Linux asset in the latest release ($tag)"
+[ -n "$url" ] || die "no $asset asset in the latest release ($tag)"
 
 # The API publishes the checksum next to the asset — so we can tell a truncated
 # or tampered download from a good one instead of installing it blindly.
