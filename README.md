@@ -22,7 +22,7 @@ completed in a single playthrough — plus a few liberties of my own.
 
 | Platform | How to get it |
 |---|---|
-| **Linux desktop** | One command — see [below](#installing-on-linux). It picks the right binary for your machine: **x86_64** or **arm64**. Or take either straight from [Releases](../../releases) |
+| **Linux desktop** | One command — see [below](#installing-on-linux); it picks the right binary for your machine on its own. Taking it straight from [Releases](../../releases) works too: the file name ends in `linux-x86_64` (most PCs) or `linux-arm64` (Raspberry Pi and other ARM machines) |
 | **Android** | [Releases](../../releases) — APK, sideload it |
 | **iOS / iPadOS** | **On request.** Email **ricciolinotop@gmail.com** to be added to the TestFlight internal testing group. There are no plans to put it on the App Store |
 
@@ -39,11 +39,39 @@ completed in a single playthrough — plus a few liberties of my own.
 
 ---
 
+## What you need to run it
+
+**Almost nothing, and that is the point.** On every platform the game is a **single
+self-contained file** with the engine inside it: there is no runtime to install first, no
+Java, no .NET, no Godot to download. It never touches the network while you play, it has no
+account and no sign-in, and it reads and writes nothing but its own save folder.
+
+| Platform | What it needs |
+|---|---|
+| **Linux desktop** | **x86_64** or **arm64**, with **glibc** — not musl systems such as Alpine |
+| **Android** | **5.0** or newer, on a **64-bit ARM** device — any phone from the last decade |
+| **iOS / iPadOS** | **15.0** or newer |
+
+Two things apply everywhere:
+
+- **Graphics that do OpenGL 3.3, or OpenGL ES 3.0 on mobile.** Godot 4 asks for it even in
+  the compatibility renderer this game uses. Anything from the last decade is fine, phones
+  included. Where it bites is older ARM single-board computers: a Mali-400 or Mali-450 only
+  reaches ES 2.0, so the GPU cannot be used at all and the game falls back to drawing on the
+  processor — playable, but slow.
+- **Space: roughly 60 MB on Android, roughly 100 MB on Linux.** The Linux installer prints
+  the exact size of the build it is about to fetch, and the store does the same on mobile, so
+  you never have to trust a number written in a README — this one included.
+
+What it does **not** need: an internet connection, an account, a particular desktop
+environment, or a gamepad — it supports one, and keyboard and touch work just as well.
+
+---
+
 ## Installing on Linux
 
-The game is one self-contained binary, so you *can* just download it and run it. The
-installer exists because a binary alone gives you no menu entry, no icon, and nothing to
-uninstall later.
+You *can* just download the binary and run it. The installer exists because a binary alone
+gives you no menu entry, no icon, and nothing to uninstall later.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ricciolino/pkmn-ricciolino-releases/main/install-linux.sh | bash
@@ -74,16 +102,15 @@ Run it again later and you get the newest release in place of the old one.
 It removes those four files and **leaves your saves alone**, in
 `~/.local/share/godot/app_userdata/pkmn-ricciolino/`.
 
-### What it needs, and what it doesn't
+### What the installer needs
 
-- **x86_64 or arm64, with glibc.** The script reads `uname -m` and fetches the matching
-  binary; on anything else — 32-bit ARM, RISC-V — it stops with a clear message instead of
-  installing something that cannot run. Not musl systems such as Alpine.
-- **A GPU that does OpenGL 3.3 or OpenGL ES 3.0.** Godot 4 needs it even in the
-  compatibility renderer, so a few older ARM boards — anything on a Mali-400 or Mali-450 —
-  can only fall back to software rendering, which works but is slow. Desktop graphics from
-  the last decade and the Raspberry Pi 4 and up are fine.
+What the **game** needs is in [What you need to run it](#what-you-need-to-run-it) above, and
+is not repeated here. This is about the script:
+
 - **`curl`.** Nothing else — no `jq`, no Python, no package manager.
+- **An architecture there is a build for.** The script reads `uname -m` and fetches the
+  matching binary; on anything else — 32-bit ARM, RISC-V — it stops with a clear message
+  instead of installing something that cannot run.
 - **A desktop that reads XDG entries** for the menu icon: GNOME, KDE, XFCE, Cinnamon and the
   rest. Bare window managers — i3, sway, dwm — don't read `.desktop` files themselves, but
   launchers like `rofi -show drun` and `dmenu_run` do. Either way the game runs from the
@@ -155,7 +182,7 @@ Elite Four, the post-game — is there and finished.
 | **Resolution** | 150×155 px viewport, 144×144 play area, 16 px tiles, nearest-neighbour |
 | **Content** | 220 maps · 152 species · 177 moves · full EN/IT localisation |
 | **Input** | Keyboard, touch and USB gamepad — every feature works on all three |
-| **Platforms** | Linux desktop, Android, iOS |
+| **Platforms** | Linux desktop (x86_64 · arm64), Android (arm64-v8a), iOS |
 
 Builds are produced **by hand, on my own machines** — no CI, no hosted runners. Each
 release is tagged, and the tag carries its own notes.
